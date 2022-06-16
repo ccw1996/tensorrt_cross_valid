@@ -1,4 +1,7 @@
 #include "tensorrt.h"
+#include "io.h"
+#include <iostream>
+#include <fstream>
 #include <opencv2/opencv.hpp>
 
 
@@ -26,8 +29,8 @@ cv::Mat preprocess_img(cv::Mat& img,int input_w,int input_h){
 
 //FIXME: check glooger
 TensorRT_Inference::TensorRT_Inference(const char* model_path, const char* engine_path){
-    modelPath.push_back(model_path);
-    enginePath.push_back(engine_path);
+    modelPath=model_path;
+    enginePath=engine_path;
     mEngine=nullptr;
     input_name_.push_back("input");
     output_name_.push_back("output");
@@ -79,6 +82,7 @@ bool TensorRT_Inference::build(){
     if(!engine_data){
         return false;
     }
+    
     //FIXME: glogger
     InferUniquePtr<IRuntime> runtime{nvinfer1::createInferRuntime(mLogger)};
     if(!runtime){
@@ -89,6 +93,7 @@ bool TensorRT_Inference::build(){
     if(!mEngine){
         return false;
     }
+    storeEngine();
     mInputDims=network->getInput(0)->getDimensions();
     mOutputDims=network->getOutput(0)->getDimensions();
     return true;
@@ -100,7 +105,7 @@ bool TensorRT_Inference::constructNetwork(InferUniquePtr<nvinfer1::IBuilder>& bu
     InferUniquePtr<nvonnxparser::IParser>& parser){
     
     //FIXME: glogger
-    auto parsed=parser->parseFromFile(modelPath[0].c_str(), 0);
+    auto parsed=parser->parseFromFile(modelPath.c_str(), 0);
     if(!parsed){
         return false;
     }
@@ -180,9 +185,44 @@ std::vector<Dims> TensorRT_Inference::getOutputDims(std::vector<std::string> out
     std::vector<Dims> result;
     return result;
 }
+//FIXME: support linux
 void TensorRT_Inference::storeEngine() {
+    std::ofstream engineFile(enginePath, std::ios::binary);
+    if(!engineFile){
+        std::cout<<"open engine file failed"<<std::endl;
+        return;
+    }
+    IHostMemory* engine_data=mEngine->serialize();
+    if(!engine_data){
+        std::cout<<"serialize engine failed"<<std::endl;
+        return;
+    }
+    engineFile.write(static_cast<char*>(engine_data->data()),engine_data->size());
+    if(!engineFile.fail()){
+        std::cout<<"store engine success"<<std::endl;
+        return;
+    }
     return;
 }
-void TensorRT_Inference::loadEngine() {
-    return;
+bool TensorRT_Inference::loadEngine() {
+    std::ifstream engineFile(enginePath, std::ios::binary);
+    if(!engineFile.good()){
+        std::cout<<"engine file not good"<<std::endl;
+        return false;
+    }
+    engineFile.seekg(0, std::ifstream::end);
+    int64_t fsize = engineFile.tellg();
+    engineFile.seekg(0, std::ifstream::beg);
+    
+    std::vector<char> engineData(fsize);
+    engineFile.read(engineData.data(), fsize);
+    if(!engineFile.good()){
+        std::cout<<"engine file not good"<<std::endl;
+        return false;
+    }
+    InferUniquePtr<IRuntime> runtime{nvinfer1::createInferRuntime(mLogger)};
+    mEngine=std::shared_ptr<nvinfer1::ICudaEngine>(runtime->deserializeCudaEngine(engineData.data(), engineData.size()));
+    mInputDims=mEngine->getBindingDimensions(0);
+    mOutputDims=mEngine->getBindingDimensions(1);
+    return mEngine!=nullptr;
 }

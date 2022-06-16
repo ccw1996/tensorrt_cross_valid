@@ -18,6 +18,7 @@ public:
     ~TensorRT_Inference();
     bool build();
     bool infer();
+    bool loadEngine();
     void run(float* input, float* output);
 private:
     bool prepareImage(const char* image_path);
@@ -25,7 +26,6 @@ private:
     std::vector<Dims> getInputDims(std::vector<std::string> input_name);
     std::vector<Dims> getOutputDims(std::vector<std::string> output_name);
     void storeEngine();
-    void loadEngine();
     bool constructNetwork(InferUniquePtr<nvinfer1::IBuilder>& builder,
     InferUniquePtr<nvinfer1::INetworkDefinition>& network, 
     InferUniquePtr<nvinfer1::IBuilderConfig>& config,
@@ -36,8 +36,10 @@ private:
     std::shared_ptr<nvinfer1::ICudaEngine> mEngine;
     Logger mLogger;
 
-    std::vector<std::string> modelPath;
-    std::vector<std::string> enginePath;
+    std::string modelPath;
+    std::string enginePath;
+
+
 
     void** dev_buffers_;
     cudaStream_t stream_;
