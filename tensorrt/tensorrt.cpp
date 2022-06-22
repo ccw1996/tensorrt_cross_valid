@@ -1,5 +1,4 @@
 #include "tensorrt.h"
-#include "io.h"
 #include <iostream>
 #include <fstream>
 #include <opencv2/opencv.hpp>
@@ -185,7 +184,7 @@ std::vector<Dims> TensorRT_Inference::getOutputDims(std::vector<std::string> out
     std::vector<Dims> result;
     return result;
 }
-//FIXME: support linux
+
 void TensorRT_Inference::storeEngine() {
     std::ofstream engineFile(enginePath, std::ios::binary);
     if(!engineFile){

@@ -2,6 +2,7 @@
 
 #include "NvInferRuntimeCommon.h"
 #include <iostream>
+#include <memory>
 
 struct InferDeleter{
     template <typename T>

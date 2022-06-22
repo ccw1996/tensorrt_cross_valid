@@ -1,11 +1,12 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 
 project(trt_demo)
+enable_language(CUDA)
 
 set(CMAKE_CXX_STANDARD 14)
 set(CMAKE_BUILD_TYPE Release)
 
-set(TENSORRT_ROOT "C:/Program Files/NVIDIA GPU Computing Toolkit/TensorRT-8.2.5.1")
+set(TENSORRT_ROOT "C:/Program Files/NVIDIA GPU Computing Toolkit/TensorRT-8.4.1.5")
 set("OpenCV_DIR" "D:/soft/opencv/opencv/build/x64/vc15/lib")
 
 # CUDA
@@ -29,13 +30,13 @@ find_library(TENSORRT_LIBRARY_ONNXPARSER nvonnxparser
 set(TENSORRT_LIBRARY ${TENSORRT_LIBRARY_INFER} ${TENSORRT_LIBRARY_ONNXPARSER})
 message(STATUS "Find TensorRT libs: ${TENSORRT_LIBRARY}")
 
-set(TENSORRT_IMPL trt_submodule)
-add_subdirectory(${PROJECT_SOURCE_DIR}/tensorrt)
-
 # OpenCV
 find_package(OpenCV REQUIRED)
 message(STATUS "Find OpenCV include at ${OpenCV_INCLUDE_DIRS}")
 message(STATUS "Find OpenCV libraries: ${OpenCV_LIBRARIES}")
+
+set(TENSORRT_IMPL trt_submodule)
+add_subdirectory(${PROJECT_SOURCE_DIR}/tensorrt)
 
 include_directories(${CUDA_INCLUDE_DIRS} ${TENSORRT_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS} ${TENSORRT_IMPL})
 
