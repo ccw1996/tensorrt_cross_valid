@@ -21,6 +21,7 @@ public:
     bool loadEngine();
     void run(float* input, float* output);
 private:
+    bool parse();
     bool prepareImage(const char* image_path);
     bool outputResult(std::string output_name);
     std::vector<Dims> getInputDims(std::vector<std::string> input_name);

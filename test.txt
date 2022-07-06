@@ -1,0 +1,8 @@
+# test
+onnxFile: D:\code\trt_test\end2end.onnx
+int8: false
+fp16: 0
+batch: 1
+dataDirs: D:\code\trt_test\
+inputTensorNames: data,prob
+outputTensorNames: 691,692,694

@@ -225,3 +225,7 @@ bool TensorRT_Inference::loadEngine() {
     mOutputDims=mEngine->getBindingDimensions(1);
     return mEngine!=nullptr;
 }
+
+bool TensorRT_Inference::parse(){
+    return true;
+}

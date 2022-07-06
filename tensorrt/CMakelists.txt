@@ -36,5 +36,5 @@ message(STATUS "Find OpenCV libraries: ${OpenCV_LIBRARIES}")
 
 include_directories(${CUDA_INCLUDE_DIRS} ${TENSORRT_INCLUDE_DIR} ${OpenCV_INCLUDE_DIRS})
 
-cuda_add_library(${PROJECT_NAME} STATIC tensorrt.cpp tensorrt.h common.h)
+cuda_add_library(${PROJECT_NAME} STATIC tensorrt.cpp tensorrt.h common.h read_file_params.cpp)
 target_link_libraries(${PROJECT_NAME} ${OpenCV_LIBRARIES} ${CUDA_LIBRARIES} ${TENSORRT_LIBRARY})
